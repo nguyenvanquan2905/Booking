@@ -1,0 +1,87 @@
+# ============================================================
+# requirements.txt — Booking Agent MVP · backlog v2.0
+# Target: Python 3.12.3 · WSL2 Ubuntu 24.04 (MVP-20)
+#
+# Cài đặt — Ubuntu 24.04 chặn pip toàn cục (PEP 668),
+# bắt buộc dùng venv:
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+#   pip freeze > requirements.lock.txt   # khóa phiên bản sau khi cài
+#
+# Ghi chú tương thích Python 3.12.3:
+# - Mọi gói dưới đây đều có wheel hoặc source hỗ trợ Python 3.12.
+# - Không gói nào yêu cầu Python >= 3.13.
+# - KHÔNG cần psycopg/asyncpg/redis/minio/prometheus-client:
+#   system design v2.1 dùng SQLite + thư mục local + CSV/JSONL.
+# - fcntl (MVP-24) là stdlib Linux — chỉ có trong WSL2, không có trên Windows.
+# - FE (EPIC-12) dùng package.json riêng, không nằm ở đây.
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. NỀN TẢNG CHUNG — MVP-01, MVP-03, MVP-90
+# ------------------------------------------------------------
+pydantic>=2.7
+pydantic-settings>=2.3
+
+# ------------------------------------------------------------
+# 2. API LAYER — EPIC-11 (MVP-110 → MVP-113) · owner F
+# ------------------------------------------------------------
+fastapi>=0.115
+uvicorn[standard]>=0.30
+sse-starlette>=2.1            # MVP-111: SSE tiến trình
+websockets>=12.0              # MVP-111: WS Live View
+python-multipart>=0.0.9       # form/upload
+pyjwt>=2.8                    # MVP-112: auth
+slowapi>=0.1.9                # MVP-112: rate limit in-memory
+
+# ------------------------------------------------------------
+# 3. AGENT — EPIC-1 (MVP-10 → MVP-18) · owner C
+# ------------------------------------------------------------
+langgraph>=0.2                # MVP-10: state machine
+langgraph-checkpoint-sqlite>=2.0   # MVP-12: AsyncSqliteSaver
+pydantic-ai>=0.0.13           # MVP-11: Input Guardrails
+baml-py>=0.60                 # MVP-15: Schema-Aligned Parsing
+phonenumbers>=8.13            # MVP-11: validate SĐT Việt Nam
+
+# ------------------------------------------------------------
+# 4. DATABASE — MVP-80 (SQLite, KHÔNG PostgreSQL)
+# ------------------------------------------------------------
+aiosqlite>=0.20               # pool async + PRAGMA WAL/busy_timeout
+alembic>=1.13                 # migration SQLite dialect (table-rebuild)
+
+# ------------------------------------------------------------
+# 5. BROWSER INFRA — EPIC-2 (MVP-22 → MVP-26) · owner A
+# ------------------------------------------------------------
+patchright>=1.45              # MVP-22: Chromium vá CDP
+playwright>=1.45              # driver nền cho Cấp 2
+camoufox>=0.4                 # MVP-23: Firefox chống phát hiện
+psutil>=5.9.6                 # MVP-26: đo RAM/CPU (5.9.6+ có wheel 3.12)
+cryptography>=42.0            # MVP-24: AES-GCM storageState
+
+# ------------------------------------------------------------
+# 6. BROWSER CONTROL — EPIC-3 (MVP-30 → MVP-38) · owner D
+# ------------------------------------------------------------
+httpx>=0.27                   # MVP-30: Cấp 1 API Replay
+browser-use>=0.1.40           # MVP-33: Cấp 4
+openai>=1.30                  # MVP-33: vision API (chọn 1 nhà cung cấp)
+anthropic>=0.30               # MVP-33: vision API (chọn 1 nhà cung cấp)
+# Stagehand (MVP-32): TS-first — cần Node sidecar hoặc Python port.
+# Không có gói Python chính thức ổn định; xác minh trước khi thêm.
+
+# ------------------------------------------------------------
+# 7. SANDBOX — EPIC-4 (MVP-40 → MVP-46) · owner B
+# ------------------------------------------------------------
+docker>=7.0                   # SDK điều khiển Docker Rootless
+
+# ------------------------------------------------------------
+# 8. BENCHMARK — EPIC-10 (MVP-100 → MVP-104) · owner E
+# ------------------------------------------------------------
+numpy>=1.26                   # MVP-102: p50/p95 (1.26 là bản đầu có wheel 3.12)
+
+# ------------------------------------------------------------
+# 9. DEV / TEST
+# ------------------------------------------------------------
+pytest>=8.2
+pytest-asyncio>=0.23
+ruff>=0.5
